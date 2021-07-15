@@ -6,7 +6,7 @@ import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations'
 
 function ProfileSiderbar(propriedades) {
   return (
-    <Box>
+    <Box as="aside">
       <img src={`https://github.com/${propriedades.githubUser}.png`} style={{ borderRadius: '8px' }} />
       <hr />
 
@@ -22,13 +22,23 @@ function ProfileSiderbar(propriedades) {
   )
 }
 
+function ProfileRelationsBox(propriedades) {
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className="smallTitle"> {propriedades.title} ({propriedades.items.length}) </h2>
+    </ProfileRelationsBoxWrapper>
+  )
+}
+
 export default function Home() {
   const usuarioAleatorio = 'marcelompimentel';
+
   const [comunidades, setComunidades] = React.useState([{
     id: '1029384756',
     title: 'Eu amo acordar cedo',
     image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
   }]);
+
   const pessoasFavoritas = [
     'juunegreiros',
     'omariosouto',
@@ -37,6 +47,19 @@ export default function Home() {
     'marcobrunodev',
     'felipefialho',
   ];
+
+  const [seguidores, setSeguidores] = React.useState([]);
+  React.useEffect(function() {
+    fetch('https://api.github.com/users/juunegreiros/followers')
+      .then(function(respostaDoServidor) {
+        return respostaDoServidor.json();
+      })
+      .then(function(respostaCompleta) {
+        setSeguidores(respostaCompleta);
+      });
+  }, []);
+  // param array vazio realiza execução do useEffect apenas uma vez
+  // se array conter uma variável, quando esta sofrer alteração useEffect executa novamente
 
   return (
     <>
@@ -90,6 +113,8 @@ export default function Home() {
         </div>
 
         <div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
+          <ProfileRelationsBox title="Seguidores" items={seguidores} />
+
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">Pessoas Favoritas ({pessoasFavoritas.length})</h2>
             <ul>
@@ -105,8 +130,10 @@ export default function Home() {
               })}
             </ul>
           </ProfileRelationsBoxWrapper>
+
           <ProfileRelationsBoxWrapper>
-          <ul>
+            <h2 className="smallTitle">Comunidades ({comunidades.length})</h2>
+            <ul>
               {comunidades.map((itemAtual) => {
                 return (
                   <li key={itemAtual.id}>
